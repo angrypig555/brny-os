@@ -8,23 +8,7 @@ start:
 
 
 ; prints a string
-puts:
-    push si
-    push ax
-.loop:
-    lodsb
-    or al, al
-    jz .done
-    
-    mov ah, 0x0E ; call tty interrupt
-    mov bh, 0
-    int 0x10
 
-    jmp .loop
-.done:
-    pop ax
-    pop si
-    ret
 
 main:
 
