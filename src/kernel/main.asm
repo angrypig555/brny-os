@@ -1,33 +1,47 @@
-org 0x7C00
+; kernel, do not mix with the boot.asm its not the same
+
+org 0x0
 bits 16
 
 %define ENDL 0x0D, 0x0A
 
+
+
 start:
-    jmp main
 
-
-; prints a string
-
-
-main:
-
-    ; set up segments
-    mov ax, 0
-    mov ds, ax
-    mov es, ax
-    ; set up the stack
-    mov ss, ax
-    mov sp, 0x7C00
     ; print the hello world
     mov si, msg_hello
     call puts
 
-    hlt
+
+
 .halt:
-    jmp .halt
+    cli
+    hlt
 
-msg_hello: db 'Hello, world! Yay it works!', ENDL, 0
 
-times 510-($-$$) db 0
-dw 0AA55h
+puts:
+    ; save registers we will modify
+    push si
+    push ax
+    push bx
+
+.loop:
+    lodsb               ; loads next character in al
+    or al, al           ; verify if next character is null?
+    jz .done
+
+    mov ah, 0x0E        ; call bios interrupt
+    mov bh, 0           ; set page number to 0
+    int 0x10
+
+    jmp .loop
+
+.done:
+    pop bx
+    pop ax
+    pop si    
+    ret
+
+msg_hello: db 'Hello, world! Kernel loaded!', ENDL, 0
+
