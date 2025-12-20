@@ -1,7 +1,7 @@
 # brnyos
 OS Project im doing
 ## How to build
-Prerequisites ```gcc, make, nasm```
+Prerequisites ```gcc, make, nasm, openwatcom2```
 To build, run 
 ```
 make

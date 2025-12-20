@@ -1,6 +1,8 @@
 ; Credits to nanobyte for the bootloader template
 ; Source: https://github.com/nanobyte-dev/nanobyte_os/blob/videos/part2/src/bootloader/boot.asm
 
+; BEFORE YOU CREATE AN ISSUE, KERNEL REFERS TO STAGE2 BOOTLOADER!!!
+
 org 0x7C00
 bits 16
 
@@ -356,8 +358,8 @@ disk_reset:
                         ; if you are a contributor, keep the strings very short, there is only 512 bytes for this program, if it goes over it will just break
 msg_hello:              db 'Loading', ENDL, 0
 msg_read_failed:        db 'Read from disk failed', ENDL, 0
-file_kernel_bin:        db 'KERNEL  BIN'
-msg_kernel_not_found:   db 'Kernel not found', ENDL, 0
+file_kernel_bin:        db 'STAGE2  BIN'
+msg_kernel_not_found:   db 'Stage2 not found', ENDL, 0
 kernel_cluster:         dw 0
 
 KERNEL_LOAD_SEGMENT     equ 0x2000
