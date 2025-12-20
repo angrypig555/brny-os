@@ -14,7 +14,7 @@
         {
             "name": "Watcom",
             "includePath": [
-                "${workspaceFolder}/**"
+                "/home/orosz/osdev/**"
             ],
             "defines": [
                 "_cdecl"
@@ -22,10 +22,16 @@
             "compilerPath": "/opt/watcom/binl/wcc",
             "cStandard": "c99",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64",
+            "intelliSenseMode": "linux-clang-x64",
             "compilerArgs": [
                 "-4 -d3 -s -wx -ms -zl -zq"
-            ]
+            ],
+            "compilerPathInCppPropertiesJson": "/opt/watcom/binl/wcc",
+            "mergeConfigurations": false,
+            "recursiveIncludes": {},
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true
+            }
         }
     ],
     "version": 4

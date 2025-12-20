@@ -2,6 +2,7 @@
 ; Source: https://github.com/nanobyte-dev/nanobyte_os/blob/videos/part2/src/bootloader/boot.asm
 
 ; BEFORE YOU CREATE AN ISSUE, KERNEL REFERS TO STAGE2 BOOTLOADER!!!
+; If you want to contribute and try to edit something in this stage 1 bootloader, there are 0 free bytes left.
 
 org 0x7C00
 bits 16

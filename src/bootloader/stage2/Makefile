@@ -1,6 +1,6 @@
 BUILD_DIR?=build/
 CC16?=/opt/watcom/binl/wcc
-CFLAGS16?=-4 -d3 -s -wx -ms -zl -zq
+CFLAGS16?=-4 -d3 -s -wx -ms -zl -zq -za99
 LD16?=/opt/watcom/binl/wlink
 ASM?=nasm
 ASMFLAGS?= -f obj

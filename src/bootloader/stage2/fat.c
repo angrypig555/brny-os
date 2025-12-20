@@ -1,15 +1,12 @@
-//FAT Testing Tool
+//FAT Driver
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include "fat.h"
+#include "stdio.h"
+#include "memdefs.h"
 
-typedef uint8_t bool;
-#define true 1
-#define false 0
+#define SECTOR_SIZE 512
 
+#pragma pack(push, 1)
 typedef struct {
     uint8_t BootJumpInstruction[3];
     uint8_t OemIdentifier[8];
@@ -35,34 +32,40 @@ typedef struct {
     uint8_t SystemId[8];
 
     
-    }   __attribute__((packed)) BootSector;
+    } FAT_BootSector;
+#pragma pack(pop)
 
-typedef struct  {
+typedef struct {
+    union {
+        FAT_BootSector BootSector;
+        uint8_t BootSectorBytes[SECTOR_SIZE];
+    }
+} FAT_Data;
 
-    uint8_t Name[11];
-    uint8_t Attributes;
-    uint8_t _Reserved;
-    uint8_t CreatedTimeTenths;
-    uint16_t CreatedTime;
-    uint16_t CreatedDate;
-    uint16_t AccessedDate;
-    uint16_t FirstClusterHigh;
-    uint16_t ModifiedTime;
-    uint16_t ModifiedDate;
-    uint16_t FirstClusterLow;
-    uint32_t Size;
-
-} __attribute__((packed)) DirectoryEntry;
+static FAT_Data far* g_Data;
 
 
-BootSector g_BootSector;
+
 uint8_t* g_Fat = NULL;
 DirectoryEntry* g_RootDirectory = NULL;
 uint32_t g_RootDirectoryEnd;
 
-bool readBootSector(FILE* disk) {
-    return fread(&g_BootSector, sizeof(g_BootSector), 1, disk) > 0;
+bool FAT_readBootSector(FILE* disk) {
+    return DISK_ReadSectors(disk, 0, 1, g_Data->BS.BootSectorBytes);
 }
+
+bool FAT_Initialize(DISK* disk) {
+
+    g_Data = (FAT_DATA far*)MEMORY_FAT_ADDR; // 19:12
+
+    if (!FAT_readBootSector(disk)) {
+        printf("[CRITICAL] Reading boot sector failed!\r\n");
+        return false;
+    };
+}
+
+
+
 
 bool readSectors(FILE* disk, uint32_t lba, uint32_t count, void* bufferOut) {
     bool ok = true;
