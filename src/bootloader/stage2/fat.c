@@ -43,15 +43,17 @@ typedef struct {
 } FAT_Data;
 
 static FAT_Data far* g_Data;
-
-
-
-uint8_t* g_Fat = NULL;
-DirectoryEntry* g_RootDirectory = NULL;
+static uint8_t far* g_Fat = NULL;
+static FAT_DirectoryEntry* g_RootDirectory = NULL;
 uint32_t g_RootDirectoryEnd;
 
-bool FAT_readBootSector(FILE* disk) {
+bool FAT_readBootSector(DISK* disk) {
     return DISK_ReadSectors(disk, 0, 1, g_Data->BS.BootSectorBytes);
+}
+
+bool FAT_readFat(DISK* disk) {
+
+    return DISK_ReadSectors(disk, g_BootSector.ReservedSectors, g_BootSector.SectorsPerFat, g_Fat);
 }
 
 bool FAT_Initialize(DISK* disk) {
@@ -62,22 +64,21 @@ bool FAT_Initialize(DISK* disk) {
         printf("[CRITICAL] Reading boot sector failed!\r\n");
         return false;
     };
+
+    g_Fat = (uint8_t far*)g_Data + sizeof(FAT_Data);
+    uint32_t fatSize = g_Data->BS.BootSector.BytesPerSector * g_Data->BS.BootSector.SectorsPerFat;
+    if(sizeof(FAT_Data) + fatSize >= MEMORY_FAT_SIZE) {
+        printf("[ERROR] fat: not enough memory to read FAT! Required memory: %lu, current: %lu\r\n", sizeof(FAT_Data) + fatSize, MEMORY_FAT_SIZE);
+        return false
+    }
 }
 
 
 
 
-bool readSectors(FILE* disk, uint32_t lba, uint32_t count, void* bufferOut) {
-    bool ok = true;
-    ok = ok && (fseek(disk, lba * g_BootSector.BytesPerSector, SEEK_SET) == 0);
-    ok = ok && (fread(bufferOut, g_BootSector.BytesPerSector, count, disk) == count);
-    return ok; 
-}
 
-bool readFat(FILE* disk) {
-    g_Fat = (uint8_t*) malloc(g_BootSector.SectorsPerFat * g_BootSector.BytesPerSector);
-    return readSectors(disk, g_BootSector.ReservedSectors, g_BootSector.SectorsPerFat, g_Fat);
-}
+
+
 
 bool readRoodDirectory(FILE* disk) {
     uint32_t lba = g_BootSector.ReservedSectors + g_BootSector.SectorsPerFat * g_BootSector.FatCount;
@@ -104,7 +105,7 @@ bool readFile(DirectoryEntry* fileEntry, FILE* disk, uint8_t* outputBuffer) {
     bool ok = true;
     uint16_t currentCluster = fileEntry->FirstClusterLow;
     do {
-        uint32_t lba = g_RootDirectoryEnd + (currentCluster - 2) * g_BootSector.SectorsPerCluster;
+        uint32_t lba = g_RootDirectoryEnd + (currentCluster - 2) * g_BootSector.SectorsPerCluster; //20:42
         ok = ok && readSectors(disk, lba, g_BootSector.SectorsPerCluster, outputBuffer);
         outputBuffer += g_BootSector.SectorsPerCluster * g_BootSector.BytesPerSector;
 
